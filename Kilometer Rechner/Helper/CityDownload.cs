@@ -1,5 +1,7 @@
-﻿using System.Net.Http.Headers;
-using System.Net.Http;
+﻿using System.Net.Http;
+using System.Net.Http.Headers;
+
+using Microsoft.EntityFrameworkCore;
 
 using Kilometer_Rechner.Models;
 
@@ -18,17 +20,14 @@ namespace Kilometer_Rechner.Helper
 
             try
             {
-                //Abrufen der API
                 using var httpClient = new HttpClient();
                 httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
                 httpClient.DefaultRequestHeaders.UserAgent.TryParseAdd("request");
 
                 HttpResponseMessage response = await httpClient.GetAsync(urlTextFile);
                 httpClient.Dispose();
-                if (response.IsSuccessStatusCode) //Prüfen ob erfolgreiche Meldungen -> Dann Daten Parsen
+                if (response.IsSuccessStatusCode)
                 {
-
-
                     return await response.Content.ReadAsStringAsync();
                 }
                 else
@@ -38,7 +37,7 @@ namespace Kilometer_Rechner.Helper
             }
             catch (Exception ex)
             {
-                //TODO -> Fehlermeldung Download
+                UserMessage.ShowMessageBox("Download Städte", "Fehler beim Abruf: " + ex.Message);
                 throw;
             }
         }
@@ -46,23 +45,22 @@ namespace Kilometer_Rechner.Helper
         /// <summary>
         /// Inhalt Konvertieren
         /// </summary>
-        public static async void ConvertContent()
+        public static async Task ConvertContent()
         {
-            string currentContent = await GetContent();
+            try
+            {
+                using CityDbContext cititesContext = new();
+                await cititesContext.Cities.ExecuteDeleteAsync();
 
-            string[] contentLines = currentContent.Split(new string[] {"\n"}, StringSplitOptions.None);
+                string currentContent = await GetContent();
 
-            foreach (string line in contentLines) 
-            { 
-                string[] lineArray = line.Split(new string[] { "\t" }, StringSplitOptions.None);
+                string[] contentLines = currentContent.Split(new string[] { "\n" }, StringSplitOptions.None);
 
-                if (lineArray[0] == "#loc_id" | string.IsNullOrEmpty(lineArray[0]))
+                foreach (string line in contentLines)
                 {
+                    string[] lineArray = line.Split(new string[] { "\t" }, StringSplitOptions.None);
 
-                }
-                else
-                {
-                    using (var cititesContext = new CityDbContext())
+                    if (lineArray[0] != "#loc_id" & !string.IsNullOrEmpty(lineArray[0]))
                     {
                         CityModel cityModel = new()
                         {
@@ -72,12 +70,16 @@ namespace Kilometer_Rechner.Helper
                             Ort = lineArray[4],
                         };
 
-                        cititesContext.Add(cityModel);
-                        cititesContext.SaveChanges();
+                        cititesContext.Add(cityModel);    
                     }
                 }
-            }
 
+                cititesContext.SaveChanges();
+            }
+            catch (Exception ex)
+            {
+                UserMessage.ShowMessageBox("Verarbeitung Städte", $"Fehler beim Parsen: {ex.Message}");
+            }
         }
     }
 }

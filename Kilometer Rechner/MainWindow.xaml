@@ -7,12 +7,20 @@
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
 
-    <Window.Resources>
-        <CollectionViewSource x:Key="citiesViewSource"/>
-    </Window.Resources>
-
     <Grid>
-        <DataGrid ItemsSource="{Binding Source={StaticResource citiesViewSource}}" Loaded="Window_Loaded" >
-        </DataGrid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition/>
+            <ColumnDefinition/>
+            <ColumnDefinition/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="30px"/>
+            <RowDefinition/>
+        </Grid.RowDefinitions>
+        <Button Grid.Column="2" Grid.Row="0"
+                Margin="5,5,5,5"
+                Content="Städte" 
+                Click="CityButton_Click" />
     </Grid>
+        
 </Window>
