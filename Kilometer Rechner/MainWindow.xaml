@@ -6,9 +6,13 @@
         xmlns:local="clr-namespace:Kilometer_Rechner"
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
-    
-    <Grid>
-        <DataGrid d:ItemsSource="{d:SampleData ItemCount=5}"/>
 
+    <Window.Resources>
+        <CollectionViewSource x:Key="citiesViewSource"/>
+    </Window.Resources>
+
+    <Grid>
+        <DataGrid ItemsSource="{Binding Source={StaticResource citiesViewSource}}" Loaded="Window_Loaded" >
+        </DataGrid>
     </Grid>
 </Window>
