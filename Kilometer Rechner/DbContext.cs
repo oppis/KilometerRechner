@@ -1,16 +1,13 @@
-﻿
-
-using System.IO;
-
-using Kilometer_Rechner.Models;
+﻿using Kilometer_Rechner.Models;
 
 using Microsoft.EntityFrameworkCore;
 
 namespace Kilometer_Rechner
 {
-    public class CityDbContext : DbContext
+    public class DbContext : Microsoft.EntityFrameworkCore.DbContext
     {
         public DbSet<CityModel> Cities { get; set; }
+        public DbSet<Calculation> Caculations { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {

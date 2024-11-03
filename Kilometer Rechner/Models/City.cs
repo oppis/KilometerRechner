@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Threading.Tasks.Dataflow;
 
 namespace Kilometer_Rechner.Models
 {
@@ -12,7 +13,8 @@ namespace Kilometer_Rechner.Models
         public string PLZ { get; set; }
         [MaxLength(100)]
         public string Ort { get; set; }
-        public float Lon { get; set; }
-        public float Lat {  get; set; }
+
+        public double Latitude { get; set; }
+        public double Longitude {  get; set; }
     }
 }

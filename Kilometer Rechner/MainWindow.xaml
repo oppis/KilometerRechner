@@ -4,23 +4,73 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Kilometer_Rechner"
+        xmlns:dgx="urn:tom-englert.de/DataGridExtensions"
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
+
+    <Window.Resources>
+        <CollectionViewSource x:Key="calculationViewSource"/>
+    </Window.Resources>
 
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition/>
             <ColumnDefinition/>
             <ColumnDefinition/>
+            <ColumnDefinition/>
+            <ColumnDefinition/>
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition Height="30px"/>
+            <RowDefinition Height="40px"/>
             <RowDefinition/>
         </Grid.RowDefinitions>
-        <Button Grid.Column="2" Grid.Row="0"
+        <Button Name="buttonCitesShow"
+                Grid.Column="4" Grid.Row="0"
                 Margin="5,5,5,5"
                 Content="Städte" 
                 Click="CityButton_Click" />
-    </Grid>
+
+        <ProgressBar Name="pbLoadCalc"
+                     Grid.Column="0" Grid.Row="0"
+                     Grid.ColumnSpan="4"
+                     Margin="5,5,5,5"
+                     Minimum="0" Maximum="100" 
+                     IsIndeterminate="False" />
+
+        <Label Content="Berechnung von Plz" 
+               HorizontalAlignment="Left" VerticalAlignment="Center"
+               Margin="5,5,5,5" 
+               Grid.Column="0" Grid.Row="1" />
+        <TextBox Name="txtPostcodeFrom"
+                 HorizontalAlignment="Left" VerticalAlignment="Center" 
+                 Margin="5,5,5,5" 
+                 Grid.Column="1" Grid.Row="1" 
+                 TextWrapping="Wrap"
+                 Width="125px"/>
+        <Button Name="buttonCalcKm"
+                Grid.Column="2" Grid.Row="1"
+                Margin="5,5,5,5"
+                Content="Berechne Kilometer"
+                Click="ButtonCalcKm_Click"/>
         
+        <Label Content="Faktor Luftlinie" 
+               HorizontalAlignment="Left" VerticalAlignment="Center"
+               Margin="5,5,5,5"
+               Grid.Column="3" Grid.Row="1" />
+        <TextBox Name="txtFactorAirLine"
+                 HorizontalAlignment="Left" VerticalAlignment="Center" 
+                 Margin="5,5,5,5" 
+                 Grid.Column="4" Grid.Row="1" 
+                 TextWrapping="Wrap"
+                 Width="125"/>
+
+        <DataGrid   Grid.Column="0" Grid.Row="2" Grid.ColumnSpan="5"
+                    Margin="5,5,5,5"
+                    ItemsSource="{Binding Source={StaticResource calculationViewSource}}" 
+                    Loaded="Window_Loaded" 
+                    dgx:DataGridFilter.IsAutoFilterEnabled="True"/>
+
+    </Grid>
+
 </Window>

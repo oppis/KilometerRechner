@@ -12,14 +12,14 @@ namespace Kilometer_Rechner
     /// </summary>
     public partial class CitiesView : Window
     {
-        private readonly CityDbContext _citiesDbContext = new();
+        private readonly DbContext _dbContext = new();
         private CollectionViewSource citiesViewSource;
 
         public CitiesView()
         {
             InitializeComponent();
 
-            citiesViewSource = (CollectionViewSource)FindResource(nameof(citiesViewSource));
+            citiesViewSource = (CollectionViewSource)FindResource(nameof(citiesViewSource));            
         }
 
         /// <summary>
@@ -41,11 +41,11 @@ namespace Kilometer_Rechner
         {
             pbLoadCitites.IsIndeterminate = true;
             buttonLoadCities.IsEnabled = false;
-            citiesViewSource.Source = null;
+            _dbContext.ChangeTracker.Clear();
 
             await Task.Run(() => CityDownload.ConvertContent());
             CityLoadView();
-            
+
             pbLoadCitites.IsIndeterminate = false;
             buttonLoadCities.IsEnabled = true;
         }
@@ -55,9 +55,9 @@ namespace Kilometer_Rechner
         /// </summary>
         private void CityLoadView()
         {
-            _citiesDbContext.Database.EnsureCreated();
-            _citiesDbContext.Cities.Load();
-            citiesViewSource.Source = _citiesDbContext.Cities.Local.ToObservableCollection();
+            _dbContext.Database.EnsureCreated();
+            _dbContext.Cities.Load();           
+            citiesViewSource.Source = _dbContext.Cities.Local.ToObservableCollection();
         }
     }
 }

@@ -31,7 +31,7 @@
                     ItemsSource="{Binding Source={StaticResource citiesViewSource}}" 
                     Loaded="Window_Loaded" 
                     dgx:DataGridFilter.IsAutoFilterEnabled="True"/>
-
+                    
         <ProgressBar Name="pbLoadCitites"
                      Grid.Column="0" Grid.Row="0"
                      Margin="5,5,5,5"

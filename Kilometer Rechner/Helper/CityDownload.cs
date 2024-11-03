@@ -4,6 +4,8 @@ using System.Net.Http.Headers;
 using Microsoft.EntityFrameworkCore;
 
 using Kilometer_Rechner.Models;
+using System.Windows.Media.Animation;
+using System.Globalization;
 
 namespace Kilometer_Rechner.Helper
 {
@@ -49,7 +51,7 @@ namespace Kilometer_Rechner.Helper
         {
             try
             {
-                using CityDbContext cititesContext = new();
+                using DbContext cititesContext = new();
                 await cititesContext.Cities.ExecuteDeleteAsync();
 
                 string currentContent = await GetContent();
@@ -65,8 +67,8 @@ namespace Kilometer_Rechner.Helper
                         CityModel cityModel = new()
                         {
                             PLZ = lineArray[1],
-                            Lon = float.Parse(lineArray[2]),
-                            Lat = float.Parse(lineArray[3]),
+                            Longitude = Math.Round(double.Parse(lineArray[2],NumberStyles.Any, CultureInfo.InvariantCulture),2),
+                            Latitude = Math.Round(double.Parse(lineArray[3], NumberStyles.Any, CultureInfo.InvariantCulture),2),
                             Ort = lineArray[4],
                         };
 
