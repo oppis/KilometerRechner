@@ -1,6 +1,8 @@
-﻿using System.Runtime.CompilerServices;
-
-using Azure.Core;
+﻿using System.Net.Http.Headers;
+using System.Net.Http;
+using System.Globalization;
+using System.Text.Json;
+using System.Text.Json.Nodes;
 
 using Kilometer_Rechner.Models;
 
@@ -8,6 +10,8 @@ namespace Kilometer_Rechner.Helper
 {
     internal class CalcKilometer
     {
+        private readonly DbContext _DbContext = new();
+        private static int currentState = 0;
         private static double DegreesToRadians(double degrees)
         {
             return degrees * Math.PI / 180.0;
@@ -43,38 +47,89 @@ namespace Kilometer_Rechner.Helper
         }
 
         /// <summary>
+        /// Berechnung der Kilometer zwischen zwei Punkte als Route
+        /// </summary>
+        /// <returns></returns>
+        private static async Task<Dictionary<int, double>> CalcRoute(CityModel city1, List<CityModel> cities2, System.Windows.Controls.ProgressBar pbLoadCalc)
+        {
+            using var httpClient = new HttpClient();
+            httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+            httpClient.DefaultRequestHeaders.UserAgent.TryParseAdd("request");
+            httpClient.DefaultRequestHeaders.ConnectionClose = false;
+
+            Dictionary<int, double> routes = [];
+
+            foreach (CityModel city2 in cities2)
+            {
+                //URL für API
+                string urlApiCall = $"http://localhost:5000/route/v1/driving/{city1.Longitude.ToString(CultureInfo.InvariantCulture)},{city1.Latitude.ToString(CultureInfo.InvariantCulture)};{city2.Longitude.ToString(CultureInfo.InvariantCulture)},{city2.Latitude.ToString(CultureInfo.InvariantCulture)}?overview=false&alternatives=false&steps=false";
+
+                HttpResponseMessage response = await httpClient.GetAsync(urlApiCall);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    JsonNode jsonValues = JsonSerializer.Deserialize<JsonNode>(await response.Content.ReadAsStringAsync());
+
+                    if (jsonValues["code"].ToString() == "Ok")
+                    {
+                        routes.Add(city2.Id, double.Parse(jsonValues["routes"][0]["distance"].ToString()) / 1000);
+                        pbLoadCalc.Dispatcher.Invoke(() => pbLoadCalc.Value = currentState++);
+                    }
+                    else
+                    {
+                        throw new Exception("Dienst konnte keine Werte berechnen!");
+                    }
+                }
+                else
+                {
+                    throw new Exception("Fehler beim Berechnen Status Code: " + response.StatusCode);
+                }
+            }
+
+            httpClient.Dispose();
+
+            return routes;
+        }
+
+        /// <summary>
         /// Starten der Berechnung für die Luftkilometer und speichern in Datenbank
         /// </summary>
         /// <param name="cityFrom"></param>
         /// <param name="cities"></param>
         /// <returns></returns>
-        public static async Task CalcAirLineToDB(CityModel cityFrom, List<CityModel> cities)
+        public async Task SaveToDB(CityModel cityFrom, List<CityModel> cities, System.Windows.Controls.ProgressBar pbLoadCalc)
         {
-            using DbContext dbContext = new();
+            pbLoadCalc.Dispatcher.Invoke(() => pbLoadCalc.Maximum = _DbContext.Cities.Count());
             
-            foreach (CityModel city in cities)
+            List<List<CityModel>> citiesBlocks = cities
+                                    .Select((x, i) => new { Index = i, Value = x })
+                                    .GroupBy(x => x.Index / 500)
+                                    .Select(x => x.Select(v => v.Value).ToList())
+                                    .ToList();
+
+
+            foreach (List<CityModel> citiesBlock in citiesBlocks)
             {
-                Calculation calculation = new()
+                Dictionary<int, double> routesKm = await CalcKilometer.CalcRoute(cityFrom, citiesBlock, pbLoadCalc);
+
+                foreach (KeyValuePair<int, double> routeKm in routesKm)
                 {
-                    BasePlz = cityFrom.Id,
-                    CalcDate = DateTime.Now,
-                    IdPlz = city.Id,
-                    AirLineKm = CalcKilometer.CalcAirLine(cityFrom, city),
-                };
+                    CityModel currentCity = _DbContext.Cities.Single(city => city.Id == routeKm.Key);
 
-                dbContext.Add(calculation);                
+                    Calculation calculation = new()
+                    {
+                        BasePlz = cityFrom.Id,
+                        CalcDate = DateTime.Now,
+                        IdPlz = routeKm.Key,
+                        AirLineKm = CalcKilometer.CalcAirLine(cityFrom, currentCity),
+                        RouteLineKm = routeKm.Value,
+                    };
+
+                    _DbContext.Caculations.Add(calculation);
+                }
             }
-
-            dbContext.SaveChanges();
-        }
-
-        /// <summary>
-        /// Berechnung der Kilometer zwisxhen zwei Punkte als Route
-        /// </summary>
-        /// <returns></returns>
-        public static int Route()
-        {
-            return 0;
+            
+            _DbContext.SaveChanges();
         }
     }
 }

@@ -6,7 +6,9 @@
         xmlns:local="clr-namespace:Kilometer_Rechner"
         xmlns:dgx="urn:tom-englert.de/DataGridExtensions"
         mc:Ignorable="d"
-        Title="Kilometer Rechner" Height="450" Width="800">
+        Title="Kilometer Rechner" Height="450" Width="800"
+        Name="test">
+    
 
     <Window.Resources>
         <CollectionViewSource x:Key="calculationViewSource"/>
@@ -25,18 +27,19 @@
             <RowDefinition Height="40px"/>
             <RowDefinition/>
         </Grid.RowDefinitions>
-        <Button Name="buttonCitesShow"
-                Grid.Column="4" Grid.Row="0"
-                Margin="5,5,5,5"
-                Content="Städte" 
-                Click="CityButton_Click" />
 
         <ProgressBar Name="pbLoadCalc"
                      Grid.Column="0" Grid.Row="0"
                      Grid.ColumnSpan="4"
                      Margin="5,5,5,5"
-                     Minimum="0" Maximum="100" 
+                     Minimum="0"
                      IsIndeterminate="False" />
+
+        <Button Name="buttonCitesShow"
+                Grid.Column="4" Grid.Row="0"
+                Margin="5,5,5,5"
+                Content="Städte" 
+                Click="CityButton_Click" />
 
         <Label Content="Berechnung von Plz" 
                HorizontalAlignment="Left" VerticalAlignment="Center"
@@ -53,7 +56,7 @@
                 Margin="5,5,5,5"
                 Content="Berechne Kilometer"
                 Click="ButtonCalcKm_Click"/>
-        
+
         <Label Content="Faktor Luftlinie" 
                HorizontalAlignment="Left" VerticalAlignment="Center"
                Margin="5,5,5,5"
@@ -69,9 +72,6 @@
                     Margin="5,5,5,5"
                     ItemsSource="{Binding Source={StaticResource calculationViewSource}}" 
                     dgx:DataGridFilter.IsAutoFilterEnabled="True">
-            
         </DataGrid>
-
     </Grid>
-
 </Window>

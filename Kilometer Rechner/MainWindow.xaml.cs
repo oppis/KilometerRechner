@@ -4,9 +4,6 @@ using System.Windows.Data;
 using Kilometer_Rechner.Helper;
 using Kilometer_Rechner.Models;
 
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Xaml.Behaviors.Core;
-
 namespace Kilometer_Rechner
 {
     /// <summary>
@@ -16,6 +13,7 @@ namespace Kilometer_Rechner
     {
         private readonly DbContext _DbContext = new();
         private CollectionViewSource calculationViewSource;
+
         public MainWindow()
         {
             InitializeComponent();
@@ -74,8 +72,8 @@ namespace Kilometer_Rechner
         /// <param name="e"></param>
         private async void ButtonCalcKm_Click(object sender, RoutedEventArgs e)
         {
-            pbLoadCalc.IsIndeterminate = true;
             buttonCalcKm.IsEnabled = false;
+            buttonCitesShow.IsEnabled = false;
 
             if (!string.IsNullOrEmpty(txtPostcodeFrom.Text))
             {
@@ -85,13 +83,15 @@ namespace Kilometer_Rechner
 
                     List<CityModel> cities = _DbContext.Cities.ToList();
 
-                    await Task.Run(() => CalcKilometer.CalcAirLineToDB(cityFrom, cities));
+                    CalcKilometer calcKilometer = new();
+                    await Task.Run(() => calcKilometer.SaveToDB(cityFrom, cities, pbLoadCalc));
 
                     CalculationLoadView();
                 }
                 catch (Exception ex)
                 {
                     UserMessage.ShowMessageBox("Berechnung", "Fehler beim berechnen der Kilometer:\n" + ex.Message);
+                    throw;
                 }
             }
             else
@@ -99,8 +99,8 @@ namespace Kilometer_Rechner
                 UserMessage.ShowMessageBox("Berechnung", "Es wurde keine Postleitzahl angegeben!");
             }
 
-            pbLoadCalc.IsIndeterminate = false;
             buttonCalcKm.IsEnabled = true;
+            buttonCitesShow.IsEnabled = true;
         }
 
         /// <summary>

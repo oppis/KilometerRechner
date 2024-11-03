@@ -1,11 +1,10 @@
 ﻿using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Globalization;
 
 using Microsoft.EntityFrameworkCore;
 
 using Kilometer_Rechner.Models;
-using System.Windows.Media.Animation;
-using System.Globalization;
 
 namespace Kilometer_Rechner.Helper
 {
@@ -34,7 +33,7 @@ namespace Kilometer_Rechner.Helper
                 }
                 else
                 {
-                    throw new Exception("Fehler beim Donwload Status Code: " +  response.StatusCode);
+                    throw new Exception("Fehler beim Download Status Code: " +  response.StatusCode);
                 }
             }
             catch (Exception ex)
@@ -45,7 +44,7 @@ namespace Kilometer_Rechner.Helper
         }
 
         /// <summary>
-        /// Inhalt Konvertieren
+        /// Inhalt Konvertieren und in Datenbank speichern
         /// </summary>
         public static async Task ConvertContent()
         {
