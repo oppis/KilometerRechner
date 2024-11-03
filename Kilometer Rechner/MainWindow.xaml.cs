@@ -5,7 +5,7 @@ using Kilometer_Rechner.Helper;
 using Kilometer_Rechner.Models;
 
 using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
+using Microsoft.Xaml.Behaviors.Core;
 
 namespace Kilometer_Rechner
 {
@@ -21,18 +21,6 @@ namespace Kilometer_Rechner
             InitializeComponent();
 
             calculationViewSource = (CollectionViewSource)FindResource(nameof(calculationViewSource));
-
-            CalculationLoadView();
-        }
-
-        /// <summary>
-        /// Ragieren auf laden des Fensters
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void Window_Loaded(object sender, RoutedEventArgs e)
-        {
-            
         }
 
         /// <summary>
@@ -52,10 +40,38 @@ namespace Kilometer_Rechner
         private void CalculationLoadView()
         {
             _DbContext.Database.EnsureCreated();
-            _DbContext.Caculations.Load();
-            calculationViewSource.Source = _DbContext.Caculations.Local.ToObservableCollection();
+
+            var dataObj = _DbContext.Caculations
+                .Join(_DbContext.Cities, calc => calc.BasePlz, cities => cities.Id, (calc, cities) => new
+                {
+                    calc.CalcDate,
+                    StartPlz = cities.PLZ,
+                    StartOrt = cities.Ort,
+                    calc.IdPlz,
+                    calc.AirLineKm,
+                    calc.RouteLineKm,
+                    
+                }).Where(calcBase => calcBase.StartPlz == txtPostcodeFrom.Text)
+                .Join(_DbContext.Cities, calc => calc.IdPlz, cities => cities.Id, (calc,cities) => new
+                {
+                    calc.CalcDate,
+                    calc.StartPlz,
+                    calc.StartOrt,
+                    EndPlz = cities.PLZ,
+                    EndOrt = cities.Ort,
+                    calc.AirLineKm,
+                    calc.RouteLineKm,                   
+                })
+                .ToList();
+
+            calculationViewSource.Source = dataObj;
         }
 
+        /// <summary>
+        /// Reagieren auf Button Click Berechnung der Kilometer und speichern in Tabelle mit laden in die View
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private async void ButtonCalcKm_Click(object sender, RoutedEventArgs e)
         {
             pbLoadCalc.IsIndeterminate = true;
@@ -85,6 +101,16 @@ namespace Kilometer_Rechner
 
             pbLoadCalc.IsIndeterminate = false;
             buttonCalcKm.IsEnabled = true;
+        }
+
+        /// <summary>
+        /// Reagieren auf verlassen des Textfeldes für die Postleitzahl -> Prüfen ob schon Ergebnisse vorhanden sind
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void TxtPostcodeFrom_LostFocus(object sender, RoutedEventArgs e)
+        {
+            CalculationLoadView();
         }
     }
 }

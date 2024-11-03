@@ -56,6 +56,7 @@ namespace Kilometer_Rechner.Helper
             {
                 Calculation calculation = new()
                 {
+                    BasePlz = cityFrom.Id,
                     CalcDate = DateTime.Now,
                     IdPlz = city.Id,
                     AirLineKm = CalcKilometer.CalcAirLine(cityFrom, city),

@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:Kilometer_Rechner"
         xmlns:dgx="urn:tom-englert.de/DataGridExtensions"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
+        Title="Kilometer Rechner" Height="450" Width="800">
 
     <Window.Resources>
         <CollectionViewSource x:Key="calculationViewSource"/>
@@ -47,7 +47,7 @@
                  Margin="5,5,5,5" 
                  Grid.Column="1" Grid.Row="1" 
                  TextWrapping="Wrap"
-                 Width="125px"/>
+                 Width="125px" LostFocus="TxtPostcodeFrom_LostFocus"/>
         <Button Name="buttonCalcKm"
                 Grid.Column="2" Grid.Row="1"
                 Margin="5,5,5,5"
@@ -68,8 +68,9 @@
         <DataGrid   Grid.Column="0" Grid.Row="2" Grid.ColumnSpan="5"
                     Margin="5,5,5,5"
                     ItemsSource="{Binding Source={StaticResource calculationViewSource}}" 
-                    Loaded="Window_Loaded" 
-                    dgx:DataGridFilter.IsAutoFilterEnabled="True"/>
+                    dgx:DataGridFilter.IsAutoFilterEnabled="True">
+            
+        </DataGrid>
 
     </Grid>
 
