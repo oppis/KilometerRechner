@@ -91,7 +91,6 @@ namespace Kilometer_Rechner
                 catch (Exception ex)
                 {
                     UserMessage.ShowMessageBox("Berechnung", "Fehler beim berechnen der Kilometer:\n" + ex.Message);
-                    throw;
                 }
             }
             else
