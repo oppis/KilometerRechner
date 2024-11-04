@@ -1,5 +1,4 @@
 ﻿using System.Data;
-using System.Drawing;
 using System.Reflection;
 
 namespace Kilometer_Rechner.Helper
@@ -39,85 +38,4 @@ namespace Kilometer_Rechner.Helper
             return dataTable;
         }
     } 
-}
-
-public class ExcelUtlity
-{
-    public bool WriteDataTableToExcel(System.Data.DataTable dataTable, string worksheetName, string saveAsLocation, string ReporType)
-    {
-        Application excel;
-        Workbook excelworkBook;
-        Worksheet excelSheet;
-        Range excelCellrange;
-        try
-        {
-            excel = new Application();
-
-
-            excel.Visible = false;
-            excel.DisplayAlerts = false;
-            excelworkBook = excel.Workbooks.Add(Type.Missing);
-            excelSheet = (Worksheet)excelworkBook.ActiveSheet;
-            excelSheet.Name = worksheetName;
-
-
-
-
-            //excelSheet.Cells[1, 2] = "Date : " + DateTime.Now.ToShortDateString();  
-            int rowcount = 2;
-            for (int Idx = 0; Idx < dataTable.Columns.Count; Idx++)
-            {
-                excelSheet.Range["A1"].Offset[0, Idx].Value = dataTable.Columns[Idx].ColumnName;
-                //row header styles  
-                excelSheet.Range["A1"].Offset[0, Idx].Font.Size = 14;
-                excelSheet.Range["A1"].Offset[0, Idx].Font.Name = "Arial";
-                excelSheet.Range["A1"].Offset[0, Idx].Font.FontStyle = "Bold";
-                excelSheet.Range["A1"].Offset[0, Idx].Font.Color = ColorTranslator.ToOle(System.Drawing.Color.White);
-                excelSheet.Range["A1"].Offset[0, Idx].Interior.Color = ColorTranslator.ToOle(System.Drawing.Color.Gray);
-
-
-
-
-            }
-            for (int Idx = 0; Idx < dataTable.Rows.Count; Idx++)
-            {
-                excelSheet.Range["A2"].Offset[Idx].Resize[1, dataTable.Columns.Count].Value =
-                dataTable.Rows[Idx].ItemArray;
-            }
-
-
-            excelSheet.Activate();
-            excelSheet.Application.ActiveWindow.FreezePanes = true;
-            Microsoft.Office.Interop.Excel.Range firstRow = (Microsoft.Office.Interop.Excel.Range)excelSheet.Rows[1];
-
-
-            firstRow.AutoFilter(1,
-            Type.Missing,
-            Microsoft.Office.Interop.Excel.XlAutoFilterOperator.xlAnd,
-            Type.Missing,
-            true);
-
-
-            excelSheet.Columns.AutoFit();
-
-
-            excelworkBook.SaveAs(saveAsLocation); ;
-            excelworkBook.Close();
-            excel.Quit();
-            return true;
-        }
-        catch (Exception ex)
-        {
-            System.Windows.MessageBox.Show(ex.Message);
-            return false;
-        }
-        finally
-        {
-            excelSheet = null;
-            excelCellrange = null;
-            excelworkBook = null;
-        }
-
-
-    }
 }

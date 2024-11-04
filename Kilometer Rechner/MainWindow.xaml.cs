@@ -1,5 +1,6 @@
 ﻿using System.Data;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Data;
 
 using Kilometer_Rechner.Helper;
@@ -58,7 +59,7 @@ namespace Kilometer_Rechner
                     EndPlz = cities.PLZ,
                     EndOrt = cities.Ort,
                     calc.AirLineKm,
-                    calc.RouteLineKm,                   
+                    calc.RouteLineKm,
                 })
                 .ToList();
 
@@ -111,6 +112,22 @@ namespace Kilometer_Rechner
         {
             CalculationLoadView();
         }
+
+        /// <summary>
+        /// Reagieren auf verlassen des Textfeldes für den Faktor
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void TxtFactorAir_LostFocus(object sender, RoutedEventArgs e)
+        {
+            DataGridTextColumn textColumn = new()
+            {
+                Header = txtFactorAirLine.Text
+            };
+
+            dataGridCalc.Columns.Add(textColumn);
+        }
+        
 
         /// <summary>
         /// Export des DataGrid zu Excel
