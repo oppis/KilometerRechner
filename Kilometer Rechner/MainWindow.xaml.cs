@@ -60,8 +60,24 @@ namespace Kilometer_Rechner
                     EndOrt = cities.Ort,
                     calc.AirLineKm,
                     calc.RouteLineKm,
+                    FaktorCalc = calc.RouteLineKm / calc.AirLineKm
                 })
                 .ToList();
+
+            if (dataObj.Count == 0)
+            {
+                buttonCalcKm.IsEnabled = true;
+            }
+
+            //Durschnitts Faktor berechnen
+            double factorAverage = 0;
+
+            foreach (var item in dataObj)
+            {
+                factorAverage = +item.FaktorCalc;
+            };
+
+            txtFactorAirLine.Content = factorAverage / dataObj.Count;
 
             calculationViewSource.Source = dataObj;
         }
@@ -112,23 +128,7 @@ namespace Kilometer_Rechner
         {
             CalculationLoadView();
         }
-
-        /// <summary>
-        /// Reagieren auf verlassen des Textfeldes für den Faktor
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void TxtFactorAir_LostFocus(object sender, RoutedEventArgs e)
-        {
-            DataGridTextColumn textColumn = new()
-            {
-                Header = txtFactorAirLine.Text
-            };
-
-            dataGridCalc.Columns.Add(textColumn);
-        }
         
-
         /// <summary>
         /// Export des DataGrid zu Excel
         /// </summary>
@@ -146,7 +146,8 @@ namespace Kilometer_Rechner
                 EndPlz = x.EndPlz,
                 EndOrt = x.EndOrt,
                 AirLineKm = x.AirLineKm,
-                RouteLineKm = x.RouteLineKm
+                RouteLineKm = x.RouteLineKm,
+                FaktorCalc = x.FaktorCalc
             }).ToList();
 
             DataTable dataTable = ExcelExport.ToDataTable(list);

@@ -9,5 +9,6 @@
         public string EndOrt { get; set; }
         public double AirLineKm { get; set; }
         public double RouteLineKm { get; set; }
+        public double FaktorCalc {  get; set; }
     }
 }
