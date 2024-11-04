@@ -66,8 +66,8 @@ namespace Kilometer_Rechner.Helper
                         CityModel cityModel = new()
                         {
                             PLZ = lineArray[1],
-                            Longitude = Math.Round(double.Parse(lineArray[2],NumberStyles.Any, CultureInfo.InvariantCulture),2),
-                            Latitude = Math.Round(double.Parse(lineArray[3], NumberStyles.Any, CultureInfo.InvariantCulture),2),
+                            Longitude = double.Parse(lineArray[2],NumberStyles.Any, CultureInfo.InvariantCulture),
+                            Latitude = double.Parse(lineArray[3], NumberStyles.Any, CultureInfo.InvariantCulture),
                             Ort = lineArray[4],
                         };
 

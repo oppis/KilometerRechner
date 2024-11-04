@@ -43,7 +43,7 @@ namespace Kilometer_Rechner.Helper
                   Math.Sin(latititude2Rad) * Math.Sin(latitude1Rad) +
                   Math.Cos(latititude2Rad) * Math.Cos(latitude1Rad) * Math.Cos(logitudeDiff));
 
-            return circumference * angleCalculation / (2.0 * Math.PI);
+            return Math.Round(circumference * angleCalculation / (2.0 * Math.PI),2);
         }
 
         /// <summary>
@@ -72,7 +72,8 @@ namespace Kilometer_Rechner.Helper
 
                     if (jsonValues["code"].ToString() == "Ok")
                     {
-                        routes.Add(city2.Id, double.Parse(jsonValues["routes"][0]["distance"].ToString()) / 1000);
+                        double convert = double.Parse(jsonValues["routes"][0]["distance"].ToString(), NumberStyles.Any, CultureInfo.InvariantCulture);
+                        routes.Add(city2.Id, Math.Round(convert / 1000, 2));
                         pbLoadCalc.Dispatcher.Invoke(() => pbLoadCalc.Value = currentState++);
                     }
                     else

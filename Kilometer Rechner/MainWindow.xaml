@@ -26,6 +26,7 @@
             <RowDefinition Height="30px"/>
             <RowDefinition Height="40px"/>
             <RowDefinition/>
+            <RowDefinition Height="30px"/>
         </Grid.RowDefinitions>
 
         <ProgressBar Name="pbLoadCalc"
@@ -39,7 +40,7 @@
                 Grid.Column="4" Grid.Row="0"
                 Margin="5,5,5,5"
                 Content="Städte" 
-                Click="CityButton_Click" />
+                Click="ButtonClickCities" />
 
         <Label Content="Berechnung von Plz" 
                HorizontalAlignment="Left" VerticalAlignment="Center"
@@ -55,7 +56,7 @@
                 Grid.Column="2" Grid.Row="1"
                 Margin="5,5,5,5"
                 Content="Berechne Kilometer"
-                Click="ButtonCalcKm_Click"/>
+                Click="ButtonClickCalcKm"/>
 
         <Label Content="Faktor Luftlinie" 
                HorizontalAlignment="Left" VerticalAlignment="Center"
@@ -68,10 +69,17 @@
                  TextWrapping="Wrap"
                  Width="125"/>
 
-        <DataGrid   Grid.Column="0" Grid.Row="2" Grid.ColumnSpan="5"
+        <DataGrid   Name="dataGridCalc"
+                    Grid.Column="0" Grid.Row="2" Grid.ColumnSpan="5"
                     Margin="5,5,5,5"
                     ItemsSource="{Binding Source={StaticResource calculationViewSource}}" 
                     dgx:DataGridFilter.IsAutoFilterEnabled="True">
         </DataGrid>
+
+        <Button Name="buttonExportExcel"
+                Grid.Column="4" Grid.Row="3"
+                Margin="5,5,5,5"
+                Content="Export Excel" 
+                Click="ButtonClickExportExcel" />
     </Grid>
 </Window>

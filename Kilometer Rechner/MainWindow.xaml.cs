@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using System.Data;
+using System.Windows;
 using System.Windows.Data;
 
 using Kilometer_Rechner.Helper;
@@ -26,7 +27,7 @@ namespace Kilometer_Rechner
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void CityButton_Click(object sender, RoutedEventArgs e)
+        private void ButtonClickCities(object sender, RoutedEventArgs e)
         {
             CitiesView citiesView = new();
             citiesView.ShowDialog();
@@ -48,7 +49,6 @@ namespace Kilometer_Rechner
                     calc.IdPlz,
                     calc.AirLineKm,
                     calc.RouteLineKm,
-                    
                 }).Where(calcBase => calcBase.StartPlz == txtPostcodeFrom.Text)
                 .Join(_DbContext.Cities, calc => calc.IdPlz, cities => cities.Id, (calc,cities) => new
                 {
@@ -70,7 +70,7 @@ namespace Kilometer_Rechner
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private async void ButtonCalcKm_Click(object sender, RoutedEventArgs e)
+        private async void ButtonClickCalcKm(object sender, RoutedEventArgs e)
         {
             buttonCalcKm.IsEnabled = false;
             buttonCitesShow.IsEnabled = false;
@@ -110,6 +110,31 @@ namespace Kilometer_Rechner
         private void TxtPostcodeFrom_LostFocus(object sender, RoutedEventArgs e)
         {
             CalculationLoadView();
+        }
+
+        /// <summary>
+        /// Export des DataGrid zu Excel
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void ButtonClickExportExcel(object sender, RoutedEventArgs e)
+        {
+            List<dynamic> listTable = dataGridCalc.Items.OfType<dynamic>().ToList();
+
+            List<CalculationResult> list = listTable.Select(x => new CalculationResult
+            {
+                CalcDate = x.CalcDate,
+                StartPlz = x.StartPlz,
+                StartOrt = x.StartOrt,
+                EndPlz = x.EndPlz,
+                EndOrt = x.EndOrt,
+                AirLineKm = x.AirLineKm,
+                RouteLineKm = x.RouteLineKm
+            }).ToList();
+
+            DataTable dataTable = ExcelExport.ToDataTable(list);
+
+
         }
     }
 }
