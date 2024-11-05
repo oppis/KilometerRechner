@@ -50,7 +50,7 @@
                  Grid.Column="1" Grid.Row="1" 
                  TextWrapping="Wrap"
                  Width="125px" 
-                 LostFocus="TxtPostcodeFrom_LostFocus"/>
+                 TextChanged="TxtPostcodeFrom_TextChanged"/>
         <Button Name="buttonCalcKm"
                 Grid.Column="0" Grid.Row="3"
                 Margin="5,5,5,5"

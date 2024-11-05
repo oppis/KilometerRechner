@@ -1,10 +1,10 @@
 ﻿using System.Data;
 using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Data;
 
 using Kilometer_Rechner.Helper;
 using Kilometer_Rechner.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace Kilometer_Rechner
 {
@@ -50,8 +50,8 @@ namespace Kilometer_Rechner
                     calc.IdPlz,
                     calc.AirLineKm,
                     calc.RouteLineKm,
-                }).Where(calcBase => calcBase.StartPlz == txtPostcodeFrom.Text)
-                .Join(_DbContext.Cities, calc => calc.IdPlz, cities => cities.Id, (calc,cities) => new
+                }).Where(calcBase => calcBase.StartPlz == txtPostcodeFrom.Dispatcher.Invoke(() => txtPostcodeFrom.Text))
+                .Join(_DbContext.Cities, calc => calc.IdPlz, cities => cities.Id, (calc, cities) => new
                 {
                     calc.CalcDate,
                     calc.StartPlz,
@@ -60,13 +60,13 @@ namespace Kilometer_Rechner
                     EndOrt = cities.Ort,
                     calc.AirLineKm,
                     calc.RouteLineKm,
-                    FaktorCalc = calc.RouteLineKm / calc.AirLineKm
-                })
+                    FaktorCalc = Math.Round(calc.RouteLineKm / calc.AirLineKm, 2)
+                }).Where(calcBase => calcBase.EndPlz != txtPostcodeFrom.Dispatcher.Invoke(() => txtPostcodeFrom.Text))
                 .ToList();
 
             if (dataObj.Count == 0)
             {
-                buttonCalcKm.IsEnabled = true;
+                buttonCalcKm.Dispatcher.Invoke(() => buttonCalcKm.IsEnabled = true);
             }
 
             //Durschnitts Faktor berechnen
@@ -74,12 +74,12 @@ namespace Kilometer_Rechner
 
             foreach (var item in dataObj)
             {
-                factorAverage = +item.FaktorCalc;
+                factorAverage += item.FaktorCalc;
             };
 
-            txtFactorAirLine.Content = factorAverage / dataObj.Count;
+            txtFactorAirLine.Dispatcher.Invoke(() => txtFactorAirLine.Content = Math.Round(factorAverage / dataObj.Count,2));
 
-            calculationViewSource.Source = dataObj;
+            calculationViewSource.Dispatcher.Invoke(() => calculationViewSource.Source = dataObj);
         }
 
         /// <summary>
@@ -107,15 +107,14 @@ namespace Kilometer_Rechner
                 }
                 catch (Exception ex)
                 {
-                    UserMessage.ShowMessageBox("Berechnung", "Fehler beim berechnen der Kilometer:\n" + ex.Message);
+                    UserMessage.ShowMessageBoxError("Berechnung", "Fehler beim berechnen der Kilometer:\n" + ex.Message);
                 }
             }
             else
             {
-                UserMessage.ShowMessageBox("Berechnung", "Es wurde keine Postleitzahl angegeben!");
+                UserMessage.ShowMessageBoxError("Berechnung", "Es wurde keine Postleitzahl angegeben!");
             }
 
-            buttonCalcKm.IsEnabled = true;
             buttonCitesShow.IsEnabled = true;
         }
 
@@ -124,9 +123,17 @@ namespace Kilometer_Rechner
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void TxtPostcodeFrom_LostFocus(object sender, RoutedEventArgs e)
+        private async void TxtPostcodeFrom_TextChanged(object sender, RoutedEventArgs e)
         {
-            CalculationLoadView();
+            if (txtPostcodeFrom.Text.Length == 5)
+            {
+                pbLoadCalc.IsIndeterminate = true;
+                buttonCalcKm.IsEnabled = false;
+
+                await Task.Run(() => CalculationLoadView());
+
+                pbLoadCalc.IsIndeterminate = false;
+            }
         }
         
         /// <summary>
@@ -152,7 +159,7 @@ namespace Kilometer_Rechner
 
             DataTable dataTable = ExcelExport.ToDataTable(list);
 
-
+            ExcelExport.SaveFile(dataTable,pbLoadCalc);
         }
     }
 }

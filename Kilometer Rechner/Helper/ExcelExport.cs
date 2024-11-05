@@ -1,5 +1,8 @@
 ﻿using System.Data;
 using System.Reflection;
+using Microsoft.Win32;
+
+using ClosedXML.Excel;
 
 namespace Kilometer_Rechner.Helper
 {
@@ -37,5 +40,34 @@ namespace Kilometer_Rechner.Helper
             //put a breakpoint here and check data table
             return dataTable;
         }
-    } 
-}
+
+        /// <summary>
+        /// DataTable als Excel File exportieren
+        /// </summary>
+        /// <param name="dataTable"></param>
+        public static async void SaveFile(DataTable dataTable, System.Windows.Controls.ProgressBar pbLoadCalc)
+        {
+            //Abfrage für Dateinamen und Speicherort
+            SaveFileDialog saveFileDialog = new()
+            {
+                Title = "Datei Speicher Excel Export Kilometer",
+                Filter = "Excel (*.xlsx) | *.xlsx",
+                InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.Desktop)
+            };
+
+            if (saveFileDialog.ShowDialog() == true)
+            {
+                pbLoadCalc.Dispatcher.Invoke(() => pbLoadCalc.IsIndeterminate = true);
+
+                XLWorkbook xLWorkbook = new();
+                xLWorkbook.Worksheets.Add(dataTable, "Kilometer");
+
+                await Task.Run(() => xLWorkbook.SaveAs(saveFileDialog.FileName));
+
+                pbLoadCalc.Dispatcher.Invoke(() => pbLoadCalc.IsIndeterminate = false);
+
+                UserMessage.ShowMessageBoxInfo("Excel Export", "Die Excel Datei wurde hier gespeichert: \n" + saveFileDialog.FileName);
+            }
+        }
+    }
+} 

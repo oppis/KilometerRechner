@@ -38,7 +38,7 @@ namespace Kilometer_Rechner.Helper
             }
             catch (Exception ex)
             {
-                UserMessage.ShowMessageBox("Download Städte", "Fehler beim Abruf: " + ex.Message);
+                UserMessage.ShowMessageBoxError("Download Städte", "Fehler beim Abruf: " + ex.Message);
                 throw;
             }
         }
@@ -79,7 +79,7 @@ namespace Kilometer_Rechner.Helper
             }
             catch (Exception ex)
             {
-                UserMessage.ShowMessageBox("Verarbeitung Städte", $"Fehler beim Parsen: {ex.Message}");
+                UserMessage.ShowMessageBoxError("Verarbeitung Städte", $"Fehler beim Parsen: {ex.Message}");
             }
         }
     }
